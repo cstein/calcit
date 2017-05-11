@@ -1,0 +1,12 @@
+#$TITLE
+! ENERGY $SCFINFO $MP2INFO $BASINFO
+
+%maxcore $MEMORY
+
+%pal
+  nprocs $NCPUS
+end
+
+*xyz $CHARGE $MULTIPLICITY
+$COORDINATE
+*

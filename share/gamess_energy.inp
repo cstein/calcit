@@ -1,0 +1,35 @@
+!
+! GAMESS energy input file.
+!
+!  Please note that CalcIt uses $ to recognize things to be replaced
+!  in the template. Thus, the file below looks a tad weird.
+!
+!  The following options were substituted
+!      NCPUS: $NCPUS
+!      MEMORY: $MEMORY
+!      MP2INFO: $MP2INFO
+!      CHARGE: $CHARGE
+!      SCFINFO: $SCFINFO
+!      MULTIPLICITY: $MULTIPLICITY
+!      BASINFO: $BASINFO
+!      TITLE: $TITLE
+!      COORDINATE: <not shown>
+!
+ $SYSTEM MWORDS=$MEMORY $END
+ $CONTRL
+    RUNTYP=ENERGY
+    $SCFINFO
+    $MP2INFO
+    ICHARG=$CHARGE
+    MULT=$MULTIPLICITY
+    ISPHER=1
+ $END
+ $SCF
+    DIRSCF=.T.
+ $END
+ $BASINFO
+ $DATA
+$TITLE
+C1
+$COORDINATE
+ $END
