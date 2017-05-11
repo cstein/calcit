@@ -1,0 +1,93 @@
+#!/usr/bin/env python
+import argparse
+import os
+import sys
+
+import calcit
+import calcit.util
+import calcit.strings
+
+def setup_argparse():
+    parser = argparse.ArgumentParser(version=calcit.strings.version_str,
+                                     description=calcit.strings.__doc__)
+
+    
+    parser.add_argument("files", type=str, metavar="INPUTFILES", nargs="+")
+    parser.add_argument("--program", dest="program", choices=["orca", "gamess", "dalton"], default="orca")
+    parser.add_argument("--no-exec", dest="do_execute", action="store_false", default=True)
+
+    system_group = parser.add_argument_group('System Setup Options', description="""
+Options in this group controls more technical details about the system setup such as port number
+and the protocol to use for starting slave nodes or the number of jobs each node can run. Please
+use the --cores-per-job option to specify how many cores an individual job can use.
+""")
+    system_group.add_argument("--jobs-per-node", dest="jobs_per_node", type=int, default=1, help="the number of jobs to run per node. Default is %(default)s jobs per node.")
+    system_group.add_argument("--cores-per-job", dest="cores_per_job", type=int, default=1, help="the number of cores to use per job. Default is %(default)s core per job.")
+    system_group.add_argument("--memory-per-job", dest="memory_per_job", type=int, default=512, help="memory per job in MB. Default %(default)s MB")
+    system_group.add_argument("--remote-shell", dest="remote_shell", choices=["ssh"], default="ssh")
+    system_group.add_argument("--port", dest="port", type=int, default=2048)
+
+    chemistry_group = parser.add_argument_group('Quantum Chemistry Options', description="""
+Options to control quantum chemistry settings such as basis set and type of calculation.
+""")
+    chemistry_group.add_argument("--runtype", dest="runtype", type=str, choices=["energy"], default="energy")
+    chemistry_group.add_argument("--basis-set", dest="basis_set", type=str, default="sto-3g")
+    chemistry_group.add_argument("--dft-functional", dest="dft_functional", type=str, default=None)
+
+    run_group = parser.add_argument_group('Advanced Run Options', description="""
+Options in this group are advanced options to provide additional options for runtime execution such as different run scripts and base input files.
+""")
+
+    run_group.add_argument("--run-script", dest="shell_run_script")
+    run_group.add_argument("--program-input", dest="program_input_file")
+    run_group.add_argument("--auth-key", dest="auth_key", type=str, default="auto")
+
+    args = parser.parse_args()
+    print args
+    return args
+
+
+def build_jobs(args):
+    for filename in args.files:
+        (base, ext) = os.path.splitext(filename)
+        job = None
+        if args.runtype == 'energy':
+            job = calcit.EnergyJob(base, program=args.program, basis_set=args.basis_set, cores_per_job=args.cores_per_job)
+        if job is not None:
+            yield job
+
+if __name__ == '__main__':
+    calcit_paths = calcit.util.directories(__file__)
+    args = setup_argparse()
+    port = args.port
+    authorization_key = calcit.util.generate_auth_key(args.auth_key)
+    work_dir = os.getcwd()
+    jobs = list(build_jobs(args))
+    nodes = ['localhost']
+    jobs_per_node = args.jobs_per_node
+    cores_per_job = args.cores_per_job
+    total_core_count = len(nodes) * jobs_per_node * cores_per_job
+    remote_shell = args.remote_shell
+    do_execute = args.do_execute
+    print "Options:"
+    print "  port:", port
+    print "  work_dir:", work_dir
+    print "  nodes:", nodes
+    print "  jobs_per_node:", jobs_per_node
+    print "  cores_per_job:", cores_per_job
+    print "  total_core_count", total_core_count
+    print "  remote_shell:", remote_shell
+    print "  jobs:", jobs
+    print "  execute:", do_execute
+    print ""
+    print "Advanced Run Options:"
+    print "  shell run script:", args.shell_run_script
+    print "  program input file:", args.program_input_file
+    print "  authorization_key:", authorization_key
+    print ""
+    print "Chemistry:"
+    print "  program:", args.program
+    print "  dft-functional:", args.dft_functional
+    print "  basis-set:", args.basis_set
+    print ""
+    calcit.process_jobs(port, authorization_key, jobs, nodes, jobs_per_node, work_dir, remote_shell, calcit_paths, do_execute)
