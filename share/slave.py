@@ -8,8 +8,7 @@ try:
 except ImportError:
     exit('Could not import CalcIt. Are you sure CalcIt is available in PYTHONPATH?')
 
-""" Connects to Queue from remote nodes and begins
-    executing jobs.
+""" Connects to Queue from remote nodes and begins executing jobs.
 """
 
 def make_slave_manager(ip, port, authorization_key):
