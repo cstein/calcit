@@ -2,10 +2,16 @@ import os
 import random
 import string
 
+class CalcItJobCreateError(IOError):
+    """ Exception cast if there is an error to create a job"""
+    pass
+
 
 def substitute_file(from_file, to_file, substitutions):
     """ Substitute contents in from_file with substitutions and
         output to to_file using string.Template class
+
+        Raises: IOError file the file to replace from is not found
 
         Arguments:
         ----------

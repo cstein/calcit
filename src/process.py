@@ -9,7 +9,7 @@ from Queue import Queue
 
 import numpy
 
-from .util import substitute_file, create_scratch_directory
+from .util import substitute_file, create_scratch_directory, CalcItJobCreateError
 
 # delays in seconds to different processes
 MANAGER_SHUTDOWN_DELAY = 3
@@ -37,6 +37,52 @@ def process_jobs(port, authorization_key, jobs, nodes, jobs_per_node, work_dir, 
                             in that global_paths have nothing to do with computations
         do_execute -- whether or not to actually execute calculations
     """
+
+    def send_jobs_to_queue(jobs, job_queue):
+        """ Sends jobs to the job queue specified on input
+
+            We wrap it like this so we can shutdown the server appropriately
+            without causing hangups
+
+            Raises:
+            CalcItJobCreateError if there was an error creating the job
+
+            Arguments:
+            jobs -- the jobs to be processed
+            job_queue -- the queue to submit the jobs to
+        """
+        total_job_count = len(jobs)
+        for job_index, job in enumerate(jobs, start=1):
+            job_str = repr(job)
+            try:
+                command = job.cmd(global_paths)
+            except:
+                raise
+            else:
+                logging.info("Submitting '{0:s}' job {1:3d} of {2:3d} to queue. Command is '{3:s}'".format(job_str, job_index, total_job_count, command))
+                cmd = (job_str, command)
+                if do_execute:
+                    job_queue.put(cmd)
+
+        return total_job_count
+
+    def retrieve_jobs_from_queue(total_job_count, result_queue):
+        """ Retrieve jobs from the processing queue
+
+            Arguments:
+            total_job_count -- the number of jobs we expect
+            result_queue -- the queue to retrieve jobs from
+        """
+        jobs_completed = 0
+        while jobs_completed < total_job_count:
+            if not do_execute:
+                break
+            job_name, time_to_complete, stdout, stderr = result_queue.get()
+            jobs_completed += 1
+            logging.info("Finished '{2:s}' ({0:d} of {1:3d}) in {3:9.2f}s.".format(jobs_completed, total_job_count, job_name, time_to_complete))
+            if len(stdout[:-1]) > 0:
+                logging.info("{0:s} STDOUT: {1:s}".format(job_name, stdout[:-1]))
+
     # get hostname of running script to pass to slaves
     host = socket.gethostname()
 
@@ -47,33 +93,15 @@ def process_jobs(port, authorization_key, jobs, nodes, jobs_per_node, work_dir, 
     # start the slaves on the remote nodes
     start_slaves(host, port, authorization_key, nodes, jobs_per_node, work_dir, remote_shell, global_paths)
 
-    # process jobs on slaves
-    total_job_count = len(jobs)
-    for job_index, job in enumerate(jobs, start=1):
-        command = job.cmd(global_paths)
-        job_str = repr(job)
-        logging.info("Submitting '{0:s}' job {1:3d} of {2:3d} to queue. Command is '{3:s}'".format(job_str, job_index, total_job_count, command))
-        cmd = (job_str, command)
-        if do_execute:
-            job_queue.put(cmd)
+    try:
+        # send jobs to job queue
+        total_job_count = send_jobs_to_queue(jobs, job_queue)
 
-    # retrieve results from slaves
-    jobs_completed = 0
-    while jobs_completed < total_job_count:
-        if not do_execute:
-            break
-        job_name, time_to_complete, stdout, stderr = result_queue.get()
-        jobs_completed += 1
-        logging.info("Finished '{2:s}' ({0:d} of {1:3d}) in {3:9.2f}s.".format(jobs_completed, total_job_count, job_name, time_to_complete))
-        if len(stdout[:-1]) > 0:
-            logging.info("{0:s} STDOUT: {1:s}".format(job_name, stdout[:-1]))
-
-        #if len(stderr[:-1]) > 0:
-        #    logging.error("{0:s} STDERR: {1:s}".format(job_name, stderr[:-1]))
-
-    # shutdown server.
-    # Clients automatically finish when job_queue is empty
-    stop_server(server)
+        # retrieve results from slaves
+        retrieve_jobs_from_queue(total_job_count, result_queue)
+    finally:
+        # shutdown server.
+        stop_server(server)
 
 
 def start_server(port, authorization_key):
@@ -250,4 +278,3 @@ def write_slave_python_script(server, port, authorization_key, jobs_per_node, sh
     substitute_file(filename_in, filename_out, substitutions)
 
     return filename_out
-

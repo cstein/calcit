@@ -1,3 +1,4 @@
+import logging
 import os
 
 import util
@@ -110,7 +111,6 @@ class Job(object):
 
         file_to_run = self._setup_files(global_paths['share'])
 
-        # depending on what the user asks whe
         s  = "cd {0};".format(os.path.join(self.work_dir, self.basename))
         s += "./{0}".format(file_to_run)
         return s
@@ -122,6 +122,7 @@ class Job(object):
 
         self._create_input(share_path)
         file_to_run = self._create_run_script(share_path)
+
         return file_to_run
 
     def _create_run_script(self, share_path):
@@ -137,7 +138,11 @@ class Job(object):
         filename_out = "{0:s}.sh".format(self.get_jobname())
         xyz_file = '../{0:s}.xyz'.format(self.basename)
 
-        util.substitute_file(filename_in, filename_out, self._run_script_substitutions)
+        try:
+            util.substitute_file(filename_in, filename_out, self._run_script_substitutions)
+        except IOError:
+            logging.error("Could not substitute from file '{}'. Please check that it exist.".format(os.path.abspath(filename_in)))
+            raise util.CalcItJobCreateError("Job: {}".format(str(self)))
 
         os.chmod(filename_out, 0744)
         os.chdir(work_dir)
