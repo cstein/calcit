@@ -1,44 +1,30 @@
 #!/usr/bin/env python
-# Copyright (C) 2016, Casper Steinmann
-#
-#
-import sys
 from distutils.core import setup
 
-# use the source code to get version information
-#from src.strings import version_str
+from src.strings import version_str
 
+__author__ = "Casper Steinmann"
+__copyright__ = "Copyright (C) 2017"
+__license__ = 'MIT'
+__version__ = version_str
+__email__ = "casper.steinmann@gmail.com"
+__url__ = "https://github.com/FragIt/fragit-main"
 __doc__="""CalcIt: a tool to run embarassingly parallel calculations """
-
-# Chosen from http://www.python.org/pypi?:action=list_classifiers
-classifiers = """\
-Development Status :: 2 - Pre-Alpha
-Environment :: Console
-Intended Audience :: Science/Research
-Intended Audience :: Developers
-License :: OSI Approved :: MIT License
-Natural Language :: English
-Operating System :: OS Independent
-Programming Language :: Python
-Topic :: Scientific/Engineering :: Chemistry
-Topic :: Software Development :: Libraries :: Python Modules
-"""
 
 def setup_calcit():
   doclines = __doc__.split("\n")
 
   setup(name="calcit",
-        version="0.1",
-        url = "https://github.com/calcit",
-        author = "Casper Steinmann",
-        author_email = "casper.steinmann@gmail.com",
-        maintainer = "Casper Steinmann",
-        maintainer_email = "casper.steinmann@gmail.com",
-        license = "MIT",
+        version=__version__,
+        url = __url__,
+        author = __author__,
+        author_email = __email__,
+        maintainer = __author__,
+        maintainer_email = __email__,
+        license = __license__,
         description = doclines[0],
         long_description = "\n".join(doclines[2:]),      
-        classifiers = filter(None, classifiers.split("\n")),
-        platforms = ["Any."],
+        platforms = "Any",
         packages=['calcit'],
         package_dir={'calcit': 'src'},
         scripts=['bin/calcit'],
