@@ -57,8 +57,7 @@ class GAMESSJob(Job):
         self._run_script_substitutions['VERSION'] = version
         self._run_script_substitutions['PROGPATH'] = path
 
-        # then input substitutions. We provide RHF as the default
-        self._comp_chem_substitutions['SCFINFO'] = "SCFTYP=RHF"
+        # then input substitutions.
         self._comp_chem_substitutions['MP2INFO'] = "MPLEVL=0"
 
     def get_memory(self):
@@ -88,6 +87,12 @@ class GAMESSJob(Job):
             raise ValueError("GAMESS does not recognize the '{0:s}' basis set. Please report this to the author.".format(self.basis_set))
 
         return gamess_basis_sets[self.basis_set]
+
+    def get_scfinfo(self):
+        s = "SCFTYP=RHF"
+        if self.dft_functional is not None:
+            s = "SCFTYP=RHF DFTTYP={}".format(self.dft_functional.upper())
+        return s
 
 
 class GAMESSEnergyJob(GAMESSJob):

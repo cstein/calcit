@@ -80,13 +80,19 @@ class DALTONJob(Job):
         self._run_script_substitutions['PROGPATH'] = path
 
         # then input substitutions
-        self._comp_chem_substitutions['SCFINFO'] = ".HF"
+        # self._comp_chem_substitutions['SCFINFO'] = ".HF"
 
     def get_memory(self):
         return self.memory_per_job
 
     def get_basis_set(self):
         return self.basis_set
+
+    def get_scfinfo(self):
+        s = ".HF"
+        if self.dft_functional is not None:
+            s = ".DFT\n{}".format(self.dft_functional.upper())
+        return s
 
     def get_title(self):
         """ Dalton uses TWO lines for the title """
@@ -105,5 +111,3 @@ class DALTONEnergyJob(DALTONJob):
 
     def __repr__(self):
         return "DALTONEnergyJob('{0:s}')".format(self.basename)
-
-    

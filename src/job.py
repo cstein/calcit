@@ -23,6 +23,7 @@ class Job(object):
             self.work_dir = work_dir[0]
 
         self.memory_per_job = kwargs.get('memory_per_job', 512) # in MB
+        self.dft_functional = kwargs.get('dft_functional', None)
         self.basis_set = kwargs.get('basis_set', 'sto-3g') # sto-3g per default
         self.cores_per_job = kwargs.get('cores_per_job', 1)
         self.scratch_directory = kwargs.get('scratch_directory', os.environ.get('SCRATCH', ''))
@@ -48,7 +49,7 @@ class Job(object):
           'MEMORY': self.get_memory(),
           'MP2INFO': '',
           'CHARGE': 0,
-          'SCFINFO': '',
+          'SCFINFO': self.get_scfinfo(),
           'MULTIPLICITY': 1,
           'BASINFO': self.get_basis_set(),
           'TITLE': self.get_title(),
@@ -207,6 +208,10 @@ class Job(object):
             Programs are free to use whatever unit they see fit
             for example MB, GB or even MWORDS
         """
+        raise NotImplementedError
+
+    def get_scfinfo(self):
+        """ Returns the SCF method (RHF, DFT) """
         raise NotImplementedError
 
 
