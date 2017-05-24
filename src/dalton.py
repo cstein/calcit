@@ -55,23 +55,6 @@ class DALTONJob(Job):
 
 
     def _program_substitutions(self):
-        """ Load DALTON specific substitutions.
-
-            In CalcIt we have two different kinds of substitutions, namely
-            SHELL substitutions for the script that runs the QM program
-            in the `self._run_script_substitutions` variable and the INPUT
-            substitutions in the `self._comp_chem_substitutions` variable
-
-            In general, run script variables are handled through environment
-            variables such as QM program location and versions whereas QM
-            calculation settings are handled through options specified on
-            the command line.
-
-            Environment Variables:
-            ----------------------
-            DALTON -- path to DALTON installation
-        """
-
         # first we do run_script substitutions
         path = os.environ.get('DALTON')
         if path is None:
