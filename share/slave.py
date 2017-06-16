@@ -17,14 +17,12 @@ def make_slave_manager(ip, port, authorization_key):
         and post results back.
 
         Arguments:
-        ----------
         ip -- the ipadress (or fully qualified domain name)
               of master that slave connects to
         port -- the port over which a connection attempt is made
         authorization_key -- program secret used to identify correct server
 
         Returns:
-        --------
         The slave manager
     """
 
@@ -43,7 +41,6 @@ def slave_node_driver(shared_job_queue, shared_result_queue, n_jobs_per_node):
     """ Starts slave processes on a single node
 
         Arguments:
-        ----------
         shared_job_queue -- the job queue to obtain jobs from
         shared_result_queue -- the queue that results are sent to
         n_jobs_per_node -- the number of slave processes to start per node
@@ -63,6 +60,10 @@ def slave(job_queue, result_queue):
         is used for accounting when everything is done.
 
         This function is called from slave_node_driver
+
+        Arguments:
+        job_queue -- the queue from which to get jobs
+        result_queue -- the queue to put results into
     """
     while True:
         try:

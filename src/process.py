@@ -52,6 +52,7 @@ def process_jobs(port, authorization_key, jobs, nodes, jobs_per_node, work_dir, 
             job_queue -- the queue to submit the jobs to
         """
         total_job_count = len(jobs)
+        logging.info("Submitting {0:3d} jobs to the queue.".format(total_job_count))
         for job_index, job in enumerate(jobs, start=1):
             job_str = repr(job)
             try:
@@ -59,8 +60,8 @@ def process_jobs(port, authorization_key, jobs, nodes, jobs_per_node, work_dir, 
             except:
                 raise
             else:
-                logging.info("Submitting '{0:s}' job {1:3d} of {2:3d} to queue. Command is '{3:s}'".format(job_str, job_index, total_job_count, command))
                 cmd = (job_str, command)
+                logging.info("Job '{0[0]:s}' added to queue. Command is '{0[1]:s}'".format(cmd))
                 if do_execute:
                     job_queue.put(cmd)
 
@@ -82,6 +83,9 @@ def process_jobs(port, authorization_key, jobs, nodes, jobs_per_node, work_dir, 
             logging.info("Finished '{2:s}' ({0:d} of {1:3d}) in {3:9.2f}s.".format(jobs_completed, total_job_count, job_name, time_to_complete))
             if len(stdout[:-1]) > 0:
                 logging.info("{0:s} STDOUT: {1:s}".format(job_name, stdout[:-1]))
+
+    if not do_execute:
+        return
 
     # get hostname of running script to pass to slaves
     host = socket.gethostname()
