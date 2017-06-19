@@ -4,20 +4,20 @@ import Queue
 import multiprocessing.managers
 
 try:
-    from calcit.process import execute
+    import calcit.process
 except ImportError:
     exit('Could not import CalcIt. Are you sure CalcIt is available in PYTHONPATH?')
 
-""" Connects to Queue from remote nodes and begins executing jobs.
+""" Connects to a host from remote nodes and begins executing jobs.
 """
 
 def make_slave_manager(ip, port, authorization_key):
-    """ The slave manager is responsible for connecting to the
+    """ Sets up a SlaveManagThe slave manager is responsible for connecting to the
         server and obtain the queues needed to both run jobs
         and post results back.
 
         Arguments:
-        ip -- the ipadress (or fully qualified domain name)
+        ip -- the ip address (or fully qualified domain name)
               of master that slave connects to
         port -- the port over which a connection attempt is made
         authorization_key -- program secret used to identify correct server
@@ -29,8 +29,8 @@ def make_slave_manager(ip, port, authorization_key):
     class ServerQueueManager(multiprocessing.managers.SyncManager):
         pass
 
-    ServerQueueManager.register('get_job_queue')
-    ServerQueueManager.register('get_result_queue')
+    ServerQueueManager.register(calcit.process.JOB_QUEUE_NAME)
+    ServerQueueManager.register(calcit.process.RES_QUEUE_NAME)
 
     manager = ServerQueueManager(address=(ip, port), authkey=authorization_key)
     manager.connect()
@@ -56,7 +56,7 @@ def slave_node_driver(shared_job_queue, shared_result_queue, n_jobs_per_node):
 
 def slave(job_queue, result_queue):
     """ Continously run commands from job queue and
-        put results into result_queue. The result queue
+        put results into result queue. The result queue
         is used for accounting when everything is done.
 
         This function is called from slave_node_driver
@@ -67,10 +67,10 @@ def slave(job_queue, result_queue):
     """
     while True:
         try:
-            job, cmd = job_queue.get_nowait()
-            out, err, time = execute(cmd, is_slave=True)
+            job, cmd = job_queue.get_nowait() # get job from job queue
+            out, err, time = calcit.process.execute(cmd, is_slave=True)
             result = (job, time, out, err)
-            result_queue.put(result)
+            result_queue.put(result) # dump result in result queue
         except Queue.Empty:
             return
 

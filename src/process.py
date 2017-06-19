@@ -15,6 +15,9 @@ from .util import substitute_file, create_scratch_directory, CalcItJobCreateErro
 MANAGER_SHUTDOWN_DELAY = 3
 SLAVE_RETURN_DELAY = 3
 
+JOB_QUEUE_NAME = 'get_job_queue'
+RES_QUEUE_NAME = 'get_result_queue'
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -24,7 +27,6 @@ def process_jobs(port, authorization_key, jobs, nodes, jobs_per_node, work_dir, 
         list of directories.
 
         Arguments:
-        ----------
         port -- the port used for communation
         authorization_key -- program secret used to identify correct server
         jobs -- the jobs to execute
@@ -112,7 +114,6 @@ def start_server(port, authorization_key):
     """ Starts the server on the master node
 
         Arguments:
-        ----------
         port -- Port to use for communication
         authorization_key -- program secret used to identify correct server
     """
@@ -129,7 +130,6 @@ def stop_server(manager):
     """ Stops the server on the master node when all jobs have finished
 
         Arguments:
-        ----------
         manager -- the server to stop
     """
     logging.info("Shutting down server.")
@@ -144,12 +144,10 @@ def make_server_manager(port, authorization_key):
         methods.
 
         Arguments:
-        ----------
         port -- Port to use for communication
         authorization_key -- program secret used to identify correct server
 
         Returns:
-        --------
         Manager to process jobs
     """
 
@@ -159,8 +157,8 @@ def make_server_manager(port, authorization_key):
     class JobQueueManager(multiprocessing.managers.SyncManager):
         pass
 
-    JobQueueManager.register('get_job_queue', callable=lambda: job_queue)
-    JobQueueManager.register('get_result_queue', callable=lambda: result_queue)
+    JobQueueManager.register(JOB_QUEUE_NAME, callable=lambda: job_queue)
+    JobQueueManager.register(RES_QUEUE_NAME, callable=lambda: result_queue)
 
     manager = JobQueueManager(address=('', port), authkey=authorization_key)
 
@@ -171,7 +169,6 @@ def start_slaves(server, port, authorization_key, nodes, jobs_per_node, work_dir
     """ Start slave prcesses on remote computers.
 
         Arguments:
-        ----------
         server -- the master server that the slaves connect to
         port -- the port used for communation
         authorization_key -- program secret used to identify correct server
@@ -197,6 +194,7 @@ def start_slaves(server, port, authorization_key, nodes, jobs_per_node, work_dir
         procs.append(process)
         process.start()
 
+
 def execute(command, is_slave=False):
     """ Executes command given an argument through a shell
 
@@ -207,7 +205,6 @@ def execute(command, is_slave=False):
         execution (sans CLIENT_RETURN_DELAY) and return it
 
         Arguments:
-        ----------
         command -- command line arguments to run a job
         is_slave -- if True then the execute process will be delayed before returning
     """
@@ -231,13 +228,11 @@ def write_slave_execute_script(work_dir, remote_shell, share_path):
         TODO: make it work for other shells too.
 
         Arguments:
-        ----------
         work_dir -- the work directory where the slaves should be launched from
         remote_shell -- the remote shell to use when connecting to nodes
         share_path -- the directory of common template files
 
         Returns:
-        --------
         filename of slave python script
     """
     if remote_shell != 'ssh':
@@ -260,7 +255,6 @@ def write_slave_python_script(server, port, authorization_key, jobs_per_node, sh
         Uses slave.py from the share directory.
 
         Arguments:
-        ----------
         server -- adress of the master that the slaves connect to
         port -- the port used for communation
         authorization_key -- program secret used to identify correct server
@@ -268,7 +262,6 @@ def write_slave_python_script(server, port, authorization_key, jobs_per_node, sh
         share_path -- the directory of common template files
 
         Returns:
-        --------
         filename of slave python script
     """
 
