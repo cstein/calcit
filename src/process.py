@@ -13,7 +13,6 @@ from .util import substitute_file, create_scratch_directory, CalcItJobCreateErro
 
 # delays in seconds to different processes
 MANAGER_SHUTDOWN_DELAY = 3
-SLAVE_RETURN_DELAY = 3
 
 JOB_QUEUE_NAME = 'get_job_queue'
 RES_QUEUE_NAME = 'get_result_queue'
@@ -212,9 +211,6 @@ def execute(command, is_slave=False):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     output, error = process.communicate()
     t1 = numpy.asarray(time.time(),dtype=numpy.float64)
-
-    if is_slave:
-        time.sleep(SLAVE_RETURN_DELAY)
 
     return output, error, t1 - t0
 

@@ -1,12 +1,15 @@
 import subprocess
 import multiprocessing as mp
-import Queue
 import multiprocessing.managers
+import Queue
+import time
 
-try:
-    import calcit.process
-except ImportError:
-    exit('Could not import CalcIt. Are you sure CalcIt is available in PYTHONPATH?')
+import numpy
+
+SLAVE_RETURN_DELAY = 3
+JOB_QUEUE_NAME = 'get_job_queue'
+RES_QUEUE_NAME = 'get_result_queue'
+
 
 """ Connects to a host from remote nodes and begins executing jobs.
 """
@@ -29,8 +32,8 @@ def make_slave_manager(ip, port, authorization_key):
     class ServerQueueManager(multiprocessing.managers.SyncManager):
         pass
 
-    ServerQueueManager.register(calcit.process.JOB_QUEUE_NAME)
-    ServerQueueManager.register(calcit.process.RES_QUEUE_NAME)
+    ServerQueueManager.register(JOB_QUEUE_NAME)
+    ServerQueueManager.register(RES_QUEUE_NAME)
 
     manager = ServerQueueManager(address=(ip, port), authkey=authorization_key)
     manager.connect()
@@ -68,11 +71,29 @@ def slave(job_queue, result_queue):
     while True:
         try:
             job, cmd = job_queue.get_nowait() # get job from job queue
-            out, err, time = calcit.process.execute(cmd, is_slave=True)
+            out, err, time = execute(cmd)
             result = (job, time, out, err)
             result_queue.put(result) # dump result in result queue
         except Queue.Empty:
             return
+
+def execute(command):
+    """ Executes command given an argument through a shell
+
+        This command will also calculate the time it took for
+        execution (sans SLAVE_RETURN_DELAY) and return it
+
+        Arguments:
+        command -- command line arguments to run a job
+    """
+    t0 = numpy.asarray(time.time(),dtype=numpy.float64)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    output, error = process.communicate()
+    t1 = numpy.asarray(time.time(),dtype=numpy.float64)
+
+    time.sleep(SLAVE_RETURN_DELAY)
+
+    return output, error, t1 - t0
 
 if __name__ == '__main__':
     manager = make_slave_manager("$HOSTNAME", $PORT, "$AUTHKEY")
