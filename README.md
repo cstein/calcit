@@ -9,6 +9,23 @@ Once the correct environment variables have been set, an Orca energy calculation
 
     calcit *.xyz --program=orca
 
+## Installing CalcIt
+
+CalcIt is a python library and installation is quite straight forward
+
+    python setup.py install
+
+to install it in the default locations. To install it in a custom location, you can run the following
+
+    python setup.py install --prefix=/path/to/custom/installation
+
+Remember to add the installation paths to your environment variables:
+
+    export PATH=/path/to/custom/installation/bin:$PATH
+    export PYTHONPATH=/path/to/custom/installation/lib/python2.7/site-packages:$PYTHONPATH
+
+shown here for a python 2.7 installation example.
+
 ### Setting up Programs
 #### DALTON
 To properly locate DALTON you must provide **one** environment variable.
