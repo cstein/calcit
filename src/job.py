@@ -23,6 +23,7 @@ class Job(object):
             self.work_dir = work_dir[0]
 
         self.memory_per_job = kwargs.get('memory_per_job', 512) # in MB
+        self.molecular_charge = kwargs.get('charge', 0)
         self.dft_functional = kwargs.get('dft_functional', None)
         self.basis_set = kwargs.get('basis_set', 'sto-3g') # sto-3g per default
         self.cores_per_job = kwargs.get('cores_per_job', 1)
@@ -48,7 +49,7 @@ class Job(object):
           'NCPUS': self.cores_per_job,
           'MEMORY': self.get_memory(),
           'MP2INFO': '',
-          'CHARGE': 0,
+          'CHARGE': self.molecular_charge,
           'SCFINFO': self.get_scfinfo(),
           'MULTIPLICITY': 1,
           'BASINFO': self.get_basis_set(),

@@ -39,7 +39,7 @@ class DALTONJob(Job):
 
         # We force that no molecule shall be treated (or attempted) to be
         # treated with symmetry.
-        s = "AtomTypes={0:d} Angstrom NoSymmetry\n".format(n_atom_types)
+        s = "AtomTypes={0:d} Charge={1:d} Angstrom NoSymmetry\n".format(n_atom_types, self.molecular_charge)
 
         # now print atoms
         n_atom_types = 0
