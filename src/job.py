@@ -54,7 +54,8 @@ class Job(object):
           'MULTIPLICITY': 1,
           'BASINFO': self.get_basis_set(),
           'TITLE': self.get_title(),
-          'COORDINATE': self.get_coordinates()
+          'COORDINATE': self.get_coordinates(),
+          'JOB': self.get_jobname()
         }
 
     def get_basename(self):
