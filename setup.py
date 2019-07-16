@@ -34,6 +34,7 @@ def setup_calcit():
                                  'share/dalton.bash', 'share/dalton_energy.inp',
                                  'share/dalton_loprop.inp', 'share/dalton_peex.inp',
                                  'share/dalton_pde_monomer.inp', 'share/dalton_pde_dimer.inp',
+                                 'share/dalton_pdeex.inp',
                                  'share/orca.bash', 'share/orca_energy.inp',
                                  'share/gamess.bash', 'share/gamess_energy.inp',
                                  'share/slave.py', 'share/start_slaves.bash'
