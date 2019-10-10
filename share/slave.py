@@ -1,7 +1,7 @@
 import subprocess
 import multiprocessing as mp
 import multiprocessing.managers
-import Queue
+import queue
 import time
 
 import numpy
@@ -35,7 +35,7 @@ def make_slave_manager(ip, port, authorization_key):
     ServerQueueManager.register(JOB_QUEUE_NAME)
     ServerQueueManager.register(RES_QUEUE_NAME)
 
-    manager = ServerQueueManager(address=(ip, port), authkey=authorization_key)
+    manager = ServerQueueManager(address=(ip, port), authkey=authorization_key.encode("utf-8"))
     manager.connect()
 
     return manager
@@ -74,7 +74,7 @@ def slave(job_queue, result_queue):
             out, err, time = execute(cmd)
             result = (job, time, out, err)
             result_queue.put(result) # dump result in result queue
-        except Queue.Empty:
+        except queue.Empty:
             return
 
 def execute(command):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from distutils.core import setup
 
-from src.strings import version_str
+from calcit.strings import version_str
 
 __author__ = "Casper Steinmann"
 __copyright__ = "Copyright (C) 2017"
@@ -26,7 +26,7 @@ def setup_calcit():
         long_description = "\n".join(doclines[2:]),      
         platforms = "Any",
         packages=['calcit'],
-        package_dir={'calcit': 'src'},
+        package_dir={'calcit': 'calcit'},
         scripts=['bin/calcit'],
         data_files=[
                       ('',['README.md','LICENSE']),

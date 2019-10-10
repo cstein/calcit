@@ -3,9 +3,10 @@ import multiprocessing
 import multiprocessing.managers
 import os
 import socket
+import stat
 import subprocess
 import time
-from Queue import Queue
+from queue import Queue
 
 import numpy
 
@@ -17,7 +18,7 @@ MANAGER_SHUTDOWN_DELAY = 3
 JOB_QUEUE_NAME = 'get_job_queue'
 RES_QUEUE_NAME = 'get_result_queue'
 
-logging.basicConfig(level=logging.INFO)
+#logging.basicConfig(level=logging.INFO)
 
 
 def process_jobs(port, authorization_key, jobs, nodes, jobs_per_node, work_dir, remote_shell, global_paths, do_execute):
@@ -83,17 +84,19 @@ def process_jobs(port, authorization_key, jobs, nodes, jobs_per_node, work_dir, 
             jobs_completed += 1
             logging.info("Finished '{2:s}' ({0:d} of {1:3d}) in {3:9.2f}s.".format(jobs_completed, total_job_count, job_name, time_to_complete))
             if len(stdout[:-1]) > 0:
-                logging.info("{0:s} STDOUT: {1:s}".format(job_name, stdout[:-1]))
+                logging.info("{0:s} STDOUT: {1:s}".format(job_name, stdout[:-1].decode('utf8')))
 
     if not do_execute:
         return
+
+    authorization_key_encoded = authorization_key.encode("utf-8")
 
     # get hostname of running script to pass to slaves
     host = socket.gethostname()
 
     # create manager and queues
     # logging.info("Creating manager".format())
-    server, job_queue, result_queue = start_server(port, authorization_key)
+    server, job_queue, result_queue = start_server(port, authorization_key_encoded)
 
     # start the slaves on the remote nodes
     start_slaves(host, port, authorization_key, nodes, jobs_per_node, work_dir, remote_shell, global_paths)
@@ -116,7 +119,7 @@ def start_server(port, authorization_key):
         port -- Port to use for communication
         authorization_key -- program secret used to identify correct server
     """
-    logging.info("Starting server on port {0:d} with authorization key '{1:s}'".format(port, authorization_key))
+    logging.info("Starting server on port {0:d}".format(port, authorization_key))
 
     manager = make_server_manager(port, authorization_key)
     manager.start()
@@ -240,7 +243,7 @@ def write_slave_execute_script(work_dir, remote_shell, share_path):
     substitutions = {'WORK_DIR': work_dir, 'REMOTE_SHELL': remote_shell}
     substitute_file(filename_in, filename_out, substitutions)
 
-    os.chmod(filename_out, 0744)
+    os.chmod(filename_out, stat.S_IRWXU or stat.S_IRGRP or stat.S_IROTH)
 
     return filename_out
 

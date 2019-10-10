@@ -8,8 +8,7 @@ import calcit.util
 import calcit.strings
 
 def setup_argparse():
-    parser = argparse.ArgumentParser(version=calcit.strings.version_str,
-                                     description=calcit.strings.__doc__)
+    parser = argparse.ArgumentParser(description=calcit.strings.__doc__)
 
     
     parser.add_argument("files", type=str, metavar="INPUTFILES", nargs="+")
@@ -43,7 +42,7 @@ Options in this group are advanced options to provide additional options for run
     run_group.add_argument("--auth-key", dest="auth_key", type=str, default="auto")
 
     args = parser.parse_args()
-    print args
+    print(args)
     return args
 
 
@@ -69,25 +68,25 @@ if __name__ == '__main__':
     total_core_count = len(nodes) * jobs_per_node * cores_per_job
     remote_shell = args.remote_shell
     do_execute = args.do_execute
-    print "Options:"
-    print "  port:", port
-    print "  work_dir:", work_dir
-    print "  nodes:", nodes
-    print "  jobs_per_node:", jobs_per_node
-    print "  cores_per_job:", cores_per_job
-    print "  total_core_count", total_core_count
-    print "  remote_shell:", remote_shell
-    print "  jobs:", jobs
-    print "  execute:", do_execute
-    print ""
-    print "Advanced Run Options:"
-    print "  shell run script:", args.shell_run_script
-    print "  program input file:", args.program_input_file
-    print "  authorization_key:", authorization_key
-    print ""
-    print "Chemistry:"
-    print "  program:", args.program
-    print "  dft-functional:", args.dft_functional
-    print "  basis-set:", args.basis_set
-    print ""
+    print("Options:")
+    print("  port:", port)
+    print("  work_dir:", work_dir)
+    print("  nodes:", nodes)
+    print("  jobs_per_node:", jobs_per_node)
+    print("  cores_per_job:", cores_per_job)
+    print("  total_core_count", total_core_count)
+    print("  remote_shell:", remote_shell)
+    print("  jobs:", jobs)
+    print("  execute:", do_execute)
+    print("")
+    print("Advanced Run Options:")
+    print("  shell run script:", args.shell_run_script)
+    print("  program input file:", args.program_input_file)
+    print("  authorization_key:", authorization_key)
+    print("")
+    print("Chemistry:")
+    print("  program:", args.program)
+    print("  dft-functional:", args.dft_functional)
+    print("  basis-set:", args.basis_set)
+    print("")
     calcit.process_jobs(port, authorization_key, jobs, nodes, jobs_per_node, work_dir, remote_shell, calcit_paths, do_execute)

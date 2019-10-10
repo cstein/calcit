@@ -53,7 +53,7 @@ def read_xyz(filename):
     with open(filename, "r") as xyz_file:
         for line in only_coordinates(xyz_file):
             data = line.split()
-            yield data[0], map(float, data[1:])
+            yield data[0], list(map(float, data[1:]))
 
 
 def write_xyz(xyz_filename, include_header=True):

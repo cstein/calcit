@@ -1,9 +1,9 @@
-import gamess
-import orca
-import dalton
+from .gamess import GAMESSEnergyJob
+from .orca import OrcaEnergyJob
+from .dalton import DALTONEnergyJob
 
 program_matrix = {
-    'energy': {'gamess': gamess.GAMESSEnergyJob, 'orca': orca.OrcaEnergyJob, 'dalton': dalton.DALTONEnergyJob}
+    'energy': {'gamess': GAMESSEnergyJob, 'orca': OrcaEnergyJob, 'dalton': DALTONEnergyJob}
     }
 
 def EnergyJob(basename, program=None, **kwargs):

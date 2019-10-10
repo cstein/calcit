@@ -1,7 +1,8 @@
 import logging
 import os
+import stat
 
-import util
+import calcit.util
 
 class Job(object):
     """ Job is the base class for all computations in CalcIt
@@ -31,7 +32,7 @@ class Job(object):
 
         self.custom_run_script = kwargs.get('custom_run_script', None)
 
-        self.xyz_data = list(util.read_xyz("{0}.xyz".format(basename)))
+        self.xyz_data = list(calcit.util.read_xyz("{0}.xyz".format(basename)))
         self.input_extension = "inp"
 
     def _setup_default_substitutions(self):
@@ -130,7 +131,7 @@ class Job(object):
 
     def _create_run_script(self, share_path):
         work_dir = os.getcwd()
-        util.create_scratch_directory(self.basename)
+        calcit.util.create_scratch_directory(self.basename)
         os.chdir(self.basename)
 
         # always assume that no custom run script is provided
@@ -142,26 +143,26 @@ class Job(object):
         xyz_file = '../{0:s}.xyz'.format(self.basename)
 
         try:
-            util.substitute_file(filename_in, filename_out, self._run_script_substitutions)
+            calcit.util.substitute_file(filename_in, filename_out, self._run_script_substitutions)
         except IOError:
             logging.error("Could not substitute from file '{}'. Please check that it exist.".format(os.path.abspath(filename_in)))
-            raise util.CalcItJobCreateError("Job: {}".format(str(self)))
+            raise calcit.util.CalcItJobCreateError("Job: {}".format(str(self)))
 
-        os.chmod(filename_out, 0744)
+        os.chmod(filename_out, stat.S_IRWXU or stat.S_IRGRP or stat.S_IROTH)
         os.chdir(work_dir)
 
         return filename_out
 
     def _create_input(self, share_path):
         work_dir = os.getcwd()
-        util.create_scratch_directory(self.basename)
+        calcit.util.create_scratch_directory(self.basename)
         os.chdir(self.basename)
 
         filename_in = '{0:s}.inp'.format(os.path.join(share_path, self.get_method()))
         filename_out = "{0:s}.{1:s}".format(self.get_jobname(), self.input_extension)
         xyz_file = '../{0:s}.xyz'.format(self.basename)
 
-        util.substitute_file(filename_in, filename_out, self._comp_chem_substitutions)
+        calcit.util.substitute_file(filename_in, filename_out, self._comp_chem_substitutions)
 
         os.chdir(work_dir)
 
