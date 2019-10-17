@@ -4,11 +4,11 @@ from distutils.core import setup
 from calcit.strings import version_str
 
 __author__ = "Casper Steinmann"
-__copyright__ = "Copyright (C) 2017"
+__copyright__ = "Copyright (C) 2019"
 __license__ = 'MIT'
 __version__ = version_str
 __email__ = "casper.steinmann@gmail.com"
-__url__ = "https://github.com/FragIt/fragit-main"
+__url__ = "https://github.com/cstein/calcit"
 __doc__="""CalcIt: a tool to run embarassingly parallel calculations """
 
 def setup_calcit():
